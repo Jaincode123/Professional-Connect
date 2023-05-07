@@ -16,6 +16,18 @@ export class FeedPostEntity {
   @Column({ default: '' })
   body: string;
 
+  @Column({default:''})
+  imagePath: string;
+
+  @Column({default:''})
+  videoPath: string;
+
+  @Column({ default: 0 })
+  likes: number;
+
+  @Column({ type: 'simple-array', default:'[]' })
+  likedByUserIds: number[];
+
   @CreateDateColumn()
   createdAt: Date;
 

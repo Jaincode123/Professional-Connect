@@ -68,4 +68,18 @@ export class FeedController {
     if (!fileName || ['null', '[null]'].includes(fileName)) return;
     return res.sendFile(fileName, { root: './images' });
   }
+
+  @UseGuards(JwtGuard)
+  @Post(':id/like')
+  likePost(
+    @Param('id') postId: number,
+    @Request() req,
+  ): Promise<FeedPost> {
+    // const id = parseInt(postId);
+    console.log("id: ", postId);
+    console.log("req.user.id: ", req.user.id);
+
+     return this.feedService.likePost(postId, req.user.id);
+    // return this.feedService.updatePost
+  }
 }

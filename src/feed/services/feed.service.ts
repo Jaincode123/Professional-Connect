@@ -56,4 +56,36 @@ export class FeedService {
       this.feedPostRepository.findOne({ id }, { relations: ['author'] }),
     );
   }
+
+  async likePost(id: number, userId: number): Promise<FeedPost> {
+
+    const post = await this.feedPostRepository.findOne(id);
+
+    var flag=false;
+
+    for( var i=0;i<post.likedByUserIds.length;i++){
+          console.log(typeof post.likedByUserIds[i]);
+          if(post.likedByUserIds[i]==userId){
+             flag=true;
+          }
+    }
+
+      if(flag){
+        console.log("Already liked")
+        return await this.feedPostRepository.findOne(id);
+    }
+    else{
+        console.log("Not liked");
+        this.feedPostRepository.update(
+            id,
+            {
+              likes: post.likes+1,
+              likedByUserIds: [...post.likedByUserIds, userId],
+            },
+          )
+          return await this.feedPostRepository.findOne(id);
+
+    }
+    
+  }
 }
