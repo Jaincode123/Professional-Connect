@@ -19,6 +19,12 @@ export class FeedService {
     return from(this.feedPostRepository.save(feedPost));
   }
 
+  putImageinPost(user:User, feedPost: FeedPost, imagePath: string): Observable<FeedPost> {
+    feedPost.author = user;
+    feedPost.imagePath = imagePath;
+    return from(this.feedPostRepository.save(feedPost));  
+  }
+
   findAllPosts(): Observable<FeedPost[]> {
     return from(this.feedPostRepository.find());
   }

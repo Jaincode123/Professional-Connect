@@ -8,14 +8,15 @@ import path = require('path');
 import { from, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
-type validFileExtension = 'png' | 'jpg' | 'jpeg';
-type validMimeType = 'image/png' | 'image/jpg' | 'image/jpeg';
+type validFileExtension = 'png' | 'jpg' | 'jpeg' | 'mp4';
+type validMimeType = 'image/png' | 'image/jpg' | 'image/jpeg' | 'video/mp4';
 
-const validFileExtensions: validFileExtension[] = ['png', 'jpg', 'jpeg'];
+const validFileExtensions: validFileExtension[] = ['png', 'jpg', 'jpeg','mp4'];
 const validMimeTypes: validMimeType[] = [
   'image/png',
   'image/jpg',
   'image/jpeg',
+  'video/mp4',
 ];
 
 export const saveImageToStorage = {

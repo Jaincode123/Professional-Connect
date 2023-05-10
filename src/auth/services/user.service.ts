@@ -35,10 +35,9 @@ export class UserService {
     );
   }
 
+  
   updateUserImageById(id: number, imagePath: string): Observable<UpdateResult> {
     const user: User = new UserEntity();
-    console.log("user.id:   " ,user.id);
-
     user.id = id;
     user.imagePath = imagePath;
     return from(this.userRepository.update(id, user));

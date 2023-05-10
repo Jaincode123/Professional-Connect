@@ -9,9 +9,11 @@ import {
   Query,
   Request,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Observable, map, of, switchMap } from 'rxjs';
 import { DeleteResult, UpdateResult } from 'typeorm';
 
 import { JwtGuard } from '../../auth/guards/jwt.guard';
@@ -20,6 +22,9 @@ import { FeedPost } from '../models/post.interface';
 import { FeedService } from '../services/feed.service';
 
 import { IsCreatorGuard } from '../guards/is-creator.guard';
+import { isFileExtensionSafe, removeFile, saveImageToStorage } from 'src/auth/helpers/image-storage';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { join } from 'path';
 
 @Controller('feed')
 export class FeedController {
@@ -30,7 +35,51 @@ export class FeedController {
   @UseGuards(JwtGuard)
   @Post()
   create(@Body() feedPost: FeedPost, @Request() req): Observable<FeedPost> {
+    console.log("feedPost:  ", feedPost);
+    // console.log("req: ", req);
     return this.feedService.createPost(req.user, feedPost);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', saveImageToStorage))
+  uploadImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() feedPost: FeedPost,
+    @Request() req,
+  ): Observable<{ modifiedFileName: string } | { error: string }> {
+
+
+    console.log("i am in upload" , feedPost);
+    const fileName = file?.filename;
+
+    console.log("hi", fileName);
+    if (!fileName) return of({ error: 'File must be a png, jpg/jpeg' });
+
+    const imagesFolderPath = join(process.cwd(), 'images');
+    const fullImagePath = join(imagesFolderPath + '/' + file.filename);
+
+    return isFileExtensionSafe(fullImagePath).pipe(
+      switchMap((isFileLegit: boolean) => {
+        if (isFileLegit) {
+          const userId = req.user.id;
+          // return this.userService.updateUserImageById(userId, fileName).pipe(
+          //   map(() => ({
+          //     modifiedFileName: file.filename,
+          //   })),
+          // );
+
+          return this.feedService.putImageinPost(userId, feedPost, fileName).pipe(
+            map(() => ({
+                  modifiedFileName: file.filename,
+                })),
+          )
+          
+        }
+        removeFile(fullImagePath);
+        return of({ error: 'File content does not match extension!' });
+      }),
+    );
   }
 
   // @Get()
